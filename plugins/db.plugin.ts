@@ -15,8 +15,15 @@ const dbPlugin: FastifyPluginAsync = async (
   const client = new Client({
     connectionString: $server.config.DATABASE_URL,
   });
-  await client.connect();
-  $server.log.info(`Connected to the DB at URL: ${$server.config.DATABASE_URL}`);
+
+  try {
+    await client.connect();
+    $server.log.info(`Connected to the DB at URL: ${$server.config.DATABASE_URL}`);
+  } catch (error) {
+    $server.log.error(error);
+    throw error
+  }
+
   $server.addHook('onClose', async () => {
     await $server.pg.end();
   });
